@@ -1,23 +1,26 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from lexicon.lexicon import LEXICON
-from services.vocabulary_handling import eng_ru, ru_eng
+from services.vocabulary_handling import ru_eng
+import random
+
+# answers = random.sample(list(ru_eng.keys()), 4)
+# print('answers = ', answers)
+# question = random.choice(answers)
+# print('question=', ru_eng.get(question))
 
 
-def create_bookmarks_keyboard(*args: int) -> InlineKeyboardMarkup:
+def create_question_answers_keyboard() -> InlineKeyboardMarkup:
+    # Выбираем случайным образом 4 ответа answers
+    answers = random.sample(list(ru_eng.keys()), 4)
+    # Из answers назначаем вопрос
+    question = random.choice(answers)
     # Создаем объект клавиатуры
     kb_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
-    # Наполняем клавиатуру кнопками-закладками в порядке возрастания
-    for button in sorted(args):
-        kb_builder.row(InlineKeyboardButton(
-            text=f'{button} - {book[button][:100]}',
-            callback_data=str(button)))
-    # Добавляем в клавиатуру в конце две кнопки "Редактировать" и "Отменить"
-    kb_builder.row(InlineKeyboardButton(
-                        text=LEXICON['edit_bookmarks_button'],
-                        callback_data='edit_bookmarks'),
-                   InlineKeyboardButton(
-                        text=LEXICON['cancel'],
-                        callback_data='cancel'),
-                   width=2)
+    # Создаем кнопку-вопрос
+    kb_builder.row(InlineKeyboardButton(text=f'{LEXICON["question_ru"]} {ru_eng.get(question)}'))
+    # Наполняем клавиатуру кнопками-ответами
+    for button in answers:
+        kb_builder.row(InlineKeyboardButton(text=f'{button}', callback_data=str(button)))
+    # kb_builder.adjust(10, repeat=True)
     return kb_builder.as_markup()
