@@ -1,6 +1,5 @@
 # Создаем шаблон заполнения словаря с пользователями
-user_dict_template: dict = {'user': 1,
-                            'SCORE': float}
+user_dict_template: dict = {'correct_answers': int, 'questions': int, 'SCORE': float}
 
 # Инициализируем "базу данных"
 users_db: dict = {}
