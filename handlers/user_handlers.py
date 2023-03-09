@@ -21,10 +21,10 @@ async def process_start_command(message: Message):
     await message.answer(LEXICON[message.text])
     if message.from_user.id not in users_db:
         users_db[message.from_user.id] = deepcopy(user_dict_template)
-        # Наполняем базу данных для нового user.id нулевыми значениями
-        users_db[message.from_user.id]['correct_answers'] = 0
-        users_db[message.from_user.id]['questions'] = 0
-        users_db[message.from_user.id]['SCORE'] = 0.0
+    # Наполняем базу данных для нового user.id нулевыми значениями
+    users_db[message.from_user.id]['correct_answers'] = 0
+    users_db[message.from_user.id]['questions'] = 0
+    users_db[message.from_user.id]['SCORE'] = 0.0
 
 
 # Этот хэндлер будет срабатывать на команду "/help"
@@ -34,11 +34,11 @@ async def process_help_command(message: Message):
     await message.answer(LEXICON[message.text])
 
 
-# Этот хэндлер будет срабатывать на команду "/begin"
+# Этот хэндлер будет срабатывать на команду "/direction"
 # и отправлять пользователю клавиатуру с направлениями перевода
-@router.message(Command(commands='begin'))
-async def process_begin_command(message: Message):
-    await message.answer(LEXICON['begin'], reply_markup=create_direction_keyboard())
+@router.message(Command(commands='direction'))
+async def process_direction_command(message: Message):
+    await message.answer(LEXICON['direction'], reply_markup=create_direction_keyboard())
 
 
 # Этот хэндлер будет срабатывать на апдейт типа CallbackQuery
@@ -63,9 +63,9 @@ async def process_direction_press(callback: CallbackQuery):
         reply_markup=reply_markup)
 
 
-# Этот хэндлер будет срабатывать на апдейт типа CallbackQuery с data 'cancel'
+# Этот хэндлер будет срабатывать на апдейт типа CallbackQuery с data 'stop'
 # и выводит статистику тренировки пользователю
-@router.callback_query(Text(text='xxx'))
+@router.callback_query(Text(text='stop'))
 async def process_cancel_press(callback: CallbackQuery):
     await callback.message.edit_text(
         text=f'Тренировка словарного запаса английского языка завершена.'
@@ -95,92 +95,10 @@ async def check_answer(callback: CallbackQuery):
         reply_markup=reply_markup)
 
 
-'''
-# Этот хэндлер будет срабатывать на команду "/continue"
-# и отправлять пользователю страницу книги, на которой пользователь
-# остановился в процессе взаимодействия с ботом
-@router.message(Command(commands='continue'))
-async def process_continue_command(message: Message):
-    text = book[users_db[message.from_user.id]['page']]
-    await message.answer(
-                text=text,
-                reply_markup=create_pagination_keyboard(
-                    'backward',
-                    f'{users_db[message.from_user.id]["page"]}/{len(book)}',
-                    'forward'))
-
-
-# Этот хэндлер будет срабатывать на команду "/bookmarks"
-# и отправлять пользователю список сохраненных закладок,
-# если они есть или сообщение о том, что закладок нет
-@router.message(Command(commands='bookmarks'))
-async def process_bookmarks_command(message: Message):
-    if users_db[message.from_user.id]["bookmarks"]:
-        await message.answer(
-            text=LEXICON[message.text],
-            reply_markup=create_bookmarks_keyboard(
-                *users_db[message.from_user.id]["bookmarks"]))
-    else:
-        await message.answer(text=LEXICON['no_bookmarks'])
-
-
-# Этот хэндлер будет срабатывать на нажатие инлайн-кнопки "вперед"
-# во время взаимодействия пользователя с сообщением-книгой
-@router.callback_query(Text(text='forward'))
-async def process_forward_press(callback: CallbackQuery):
-    if users_db[callback.from_user.id]['page'] < len(book):
-        users_db[callback.from_user.id]['page'] += 1
-        text = book[users_db[callback.from_user.id]['page']]
-        await callback.message.edit_text(
-            text=text,
-            reply_markup=create_pagination_keyboard(
-                    'backward',
-                    f'{users_db[callback.from_user.id]["page"]}/{len(book)}',
-                    'forward'))
-    await callback.answer()
-
-
-# Этот хэндлер будет срабатывать на нажатие инлайн-кнопки "назад"
-# во время взаимодействия пользователя с сообщением-книгой
-@router.callback_query(Text(text='backward'))
-async def process_backward_press(callback: CallbackQuery):
-    if users_db[callback.from_user.id]['page'] > 1:
-        users_db[callback.from_user.id]['page'] -= 1
-        text = book[users_db[callback.from_user.id]['page']]
-        await callback.message.edit_text(
-                text=text,
-                reply_markup=create_pagination_keyboard(
-                    'backward',
-                    f'{users_db[callback.from_user.id]["page"]}/{len(book)}',
-                    'forward'))
-    await callback.answer()
-
-
-# Этот хэндлер будет срабатывать на нажатие инлайн-кнопки
-# с номером текущей страницы и добавлять текущую страницу в закладки
-@router.callback_query(lambda x: '/' in x.data and x.data.replace('/', '').isdigit())
-async def process_page_press(callback: CallbackQuery):
-    users_db[callback.from_user.id]['bookmarks'].add(
-        users_db[callback.from_user.id]['page'])
-    await callback.answer('Страница добавлена в закладки!')
-
-
-# Этот хэндлер будет срабатывать на нажатие инлайн-кнопки
-# "редактировать" под списком закладок
-@router.callback_query(Text(text='edit_bookmarks'))
-async def process_edit_press(callback: CallbackQuery):
-    await callback.message.edit_text(
-                text=LEXICON[callback.data],
-                reply_markup=create_edit_keyboard(
-                                *users_db[callback.from_user.id]["bookmarks"]))
-    await callback.answer()
-
-
-# Этот хэндлер будет срабатывать на нажатие инлайн-кнопки
-# "отменить" во время работы со списком закладок (просмотр и редактирование)
-@router.callback_query(Text(text='cancel'))
-async def process_cancel_press(callback: CallbackQuery):
-    await callback.message.edit_text(text=LEXICON['cancel_text'])
-    await callback.answer()
-
-'''
+# хэндлер на команду в меню '/score': 'Показать статистику'
+# и отправлять пользователю статистику тренировки
+@router.message(Command(commands='score'))
+async def process_score_command(message: Message):
+    await message.answer(text=f'\nСтатистика тренировки: {users_db[message.from_user.id]["correct_answers"]} '
+                              f'верных ответов из {users_db[message.from_user.id]["questions"]} вопросов = '
+                              f'{users_db[message.from_user.id]["SCORE"]}')

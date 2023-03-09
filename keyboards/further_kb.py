@@ -8,6 +8,5 @@ def create_further_kb() -> InlineKeyboardMarkup:
     kb_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
     # Создаем кнопки
     kb_builder.row(InlineKeyboardButton(text=f'{LEXICON["next_word"]}', callback_data="next_word"))
-    kb_builder.row(InlineKeyboardButton(text=f'{LEXICON["cancel"]}', callback_data="xxx"))
-    # kb_builder.adjust(10, repeat=True)
+    kb_builder.row(InlineKeyboardButton(text=f'{LEXICON["cancel"]}', callback_data="stop"))
     return kb_builder.as_markup()
