@@ -1,3 +1,4 @@
+# модуль для отображения команд при нажатии на кнопку "Menu" в главном меню бота
 from aiogram import Bot
 from aiogram.types import BotCommand
 

@@ -1,3 +1,4 @@
+# Точка входа bot.py
 import asyncio
 import logging
 

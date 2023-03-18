@@ -1,3 +1,4 @@
+# модуль для формирования клавиатуры инлайн кнопок с направлениями перевода
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from lexicon.lexicon import LEXICON

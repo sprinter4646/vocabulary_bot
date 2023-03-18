@@ -1,3 +1,4 @@
+# модуль для формирования кнопок с ответами
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from lexicon.lexicon import LEXICON
@@ -12,10 +13,9 @@ def create_question_answers_keyboard(direction) -> tuple:
     answers = random.sample(list(slovar.keys()), 4)
     # Формируем список переводов answers_question
     answers_question = [slovar[i] for i in answers]
-    # print(answers_question)
-    # Из answers назначаем вопрос
+    # Из answers назначаем question
     question = random.choice(answers)
-    # print('question=', question)
+    # определяем answer_question ответ на question
     answer_question = slovar[question]
     # print(answer_question)
     # Создаем объект клавиатуры
@@ -24,4 +24,4 @@ def create_question_answers_keyboard(direction) -> tuple:
     for button in answers_question:
         kb_builder.row(InlineKeyboardButton(text=f'{button}', callback_data=str(button)))
     # возвращаем: вопрос, клавиатуру с вариантами ответов, правильный ответ
-    return question, kb_builder.as_markup(), answer_question
+    return question, kb_builder.as_markup(), answer_question, answers_question
